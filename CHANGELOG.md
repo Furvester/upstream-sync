@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/furvester/upstream-sync/compare/v1.0.0...v1.0.1) (2024-11-02)
+
+
+### Bug Fixes
+
+* wrap entity pre-sync in transaction ([b8626cd](https://github.com/furvester/upstream-sync/commit/b8626cd08094886e87861ab8b5c254944c0b3ed3))
+
 # 1.0.0 (2024-11-02)
 
 
