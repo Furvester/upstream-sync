@@ -191,12 +191,18 @@ export class SyncManager {
                     await this.preSyncEntity(em, service, entity);
                 });
 
-                this.config.logger.info(`Entity with routing key ${entity.routingKeyPrefix} pre-synced`);
+                this.config.logger.info(
+                    `Entity with routing key ${entity.routingKeyPrefix} pre-synced`,
+                );
             }
         }
     }
 
-    private async preSyncEntity(em: EntityManager, service: UpstreamService, entity: UpstreamEntity): Promise<void> {
+    private async preSyncEntity(
+        em: EntityManager,
+        service: UpstreamService,
+        entity: UpstreamEntity,
+    ): Promise<void> {
         const versions = new Map(
             (
                 await em
