@@ -1,5 +1,5 @@
 # Upstream Sync
 
-[![CI/CD](https://github.com/Furvester/upstream-sync/actions/workflows/cicd.yml/badge.svg)](https://github.com/Furvester/upstream-sync/actions/workflows/cicd.yml)
+[![Release](https://github.com/Furvester/upstream-sync/actions/workflows/release.yml/badge.svg)](https://github.com/Furvester/upstream-sync/actions/workflows/release.yml)
 
 Sync from upstream via RabbitMQ.
