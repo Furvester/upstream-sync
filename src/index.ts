@@ -187,14 +187,16 @@ export class SyncManager {
             await this.waitReady(`/${service.serviceName}/health`, service.serviceName);
 
             for (const entity of service.entities) {
-                await this.preSyncEntity(service, entity);
+                await this.config.orm.em.fork().transactional(async (em) => {
+                    await this.preSyncEntity(em, service, entity);
+                });
+
+                this.config.logger.info(`Entity with routing key ${entity.routingKeyPrefix} pre-synced`);
             }
         }
     }
 
-    private async preSyncEntity(service: UpstreamService, entity: UpstreamEntity): Promise<void> {
-        const em = this.config.orm.em.fork();
-
+    private async preSyncEntity(em: EntityManager, service: UpstreamService, entity: UpstreamEntity): Promise<void> {
         const versions = new Map(
             (
                 await em
