@@ -277,9 +277,11 @@ export class SyncManager {
                     return;
                 }
             } catch {
-                this.config.logger.info("Unable to verify health, backing off");
-                await new Promise((resolve) => setTimeout(resolve, 5000));
+                // Noop
             }
+
+            this.config.logger.info("Unable to verify health, backing off");
+            await new Promise((resolve) => setTimeout(resolve, 5000));
         }
 
         throw new Error(`Service "${serviceName}" didn't turn ready within 60 seconds`);
