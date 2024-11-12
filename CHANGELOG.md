@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/furvester/upstream-sync/compare/v1.0.2...v1.1.0) (2024-11-12)
+
+
+### Features
+
+* allow to disable pre-sync per entity and service ([5e0fd6c](https://github.com/furvester/upstream-sync/commit/5e0fd6c9d592a37a7258ceb775da2973bb7b85a7))
+
 ## [1.0.2](https://github.com/furvester/upstream-sync/compare/v1.0.1...v1.0.2) (2024-11-04)
 
 
