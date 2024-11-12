@@ -61,12 +61,13 @@ export type PreSync<TSelector extends Selector<PreSyncDocument<PreSyncResource>>
 export type UpstreamEntity = {
     routingKeyPrefix: string;
     events: MessageEvent<z.ZodTypeAny>[];
-    preSync: PreSync<Selector<PreSyncDocument<PreSyncResource>>>;
+    preSync?: PreSync<Selector<PreSyncDocument<PreSyncResource>>>;
 };
 
 export type UpstreamService = {
     serviceName: string;
     entities: UpstreamEntity[];
+    disableWaitReady?: boolean;
 };
 
 type VersionReference = {
@@ -184,7 +185,9 @@ export class SyncManager {
 
     private async runPreSync(): Promise<void> {
         for (const service of this.upstreamServices) {
-            await this.waitReady(`/${service.serviceName}/health`, service.serviceName);
+            if (!service.disableWaitReady) {
+                await this.waitReady(`/${service.serviceName}/health`, service.serviceName);
+            }
 
             for (const entity of service.entities) {
                 await this.config.orm.em.fork().transactional(async (em) => {
@@ -203,6 +206,10 @@ export class SyncManager {
         service: UpstreamService,
         entity: UpstreamEntity,
     ): Promise<void> {
+        if (!entity.preSync) {
+            return;
+        }
+
         const versions = new Map(
             (
                 await em
