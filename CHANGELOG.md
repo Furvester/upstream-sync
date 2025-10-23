@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Furvester/upstream-sync/compare/v1.1.0...v1.1.1) (2025-10-23)
+
+
+### Bug Fixes
+
+* add provenance attestation ([5a49d2d](https://github.com/Furvester/upstream-sync/commit/5a49d2ddac330af85445dd0520aea73210cff0f4))
+
 # [1.1.0](https://github.com/furvester/upstream-sync/compare/v1.0.2...v1.1.0) (2024-11-12)
 
 
