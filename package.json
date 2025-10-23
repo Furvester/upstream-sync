@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/furvester/upstream-sync.git"
+    "url": "git+https://github.com/Furvester/upstream-sync.git"
   },
   "publishConfig": {
     "access": "public"

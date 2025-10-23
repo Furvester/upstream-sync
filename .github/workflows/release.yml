@@ -10,6 +10,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: write
       issues: write
       pull-requests: write
@@ -20,10 +21,11 @@ jobs:
       - name: Use pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Use Node.js 20.x
+      - name: Use Node.js 24.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -36,12 +38,11 @@ jobs:
         run: pnpm build
 
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
-          semantic_version: 24.2.0
+          semantic_version: 25
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
