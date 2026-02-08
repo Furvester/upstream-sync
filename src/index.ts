@@ -1,19 +1,9 @@
 import type { EntityClass, EntityManager, MikroORM } from "@mikro-orm/postgresql";
 import { Mutex } from "async-mutex";
-import {
-    type CollectionPageParams,
-    type Selector,
-    handleJsonApiError,
-    injectPageParams,
-} from "jsonapi-zod-query";
 import type { Logger } from "logforth";
-import {
-    Connection,
-    type ConnectionOptions,
-    type Consumer,
-    type ConsumerProps,
-} from "rabbitmq-client";
+import { Connection, type ConnectionOptions, type Consumer, type ConsumerProps, } from "rabbitmq-client";
 import type { z } from "zod";
+import { handleJsonApiError, injectPageParams, PaginationPageParams } from "@jsonapi-serde/client";
 
 export type SyncManagerConfig = {
     rabbitmq: ConnectionOptions;
@@ -29,14 +19,14 @@ export type SyncableEntityClass = EntityClass<{
     upstreamVersion: number;
 }>;
 
-export type PreSyncResource = {
+export type ResyncResource = {
     id: string;
     version: number;
 };
 
-export type PreSyncDocument<T extends PreSyncResource> = {
+export type ResyncDocument<T extends ResyncResource> = {
     data: T[];
-    pageParams: CollectionPageParams;
+    pageParams: PaginationPageParams<string>;
 };
 
 export type MessageEventHandler<T = unknown> = (em: EntityManager, data: T) => Promise<void> | void;
@@ -47,21 +37,22 @@ export type MessageEvent<T extends z.ZodTypeAny> = {
     handler: MessageEventHandler<ReturnType<T["parse"]>>;
 };
 
-export type PreSyncHandler<T> = (em: EntityManager, resource: T) => Promise<void> | void;
+export type ResyncHandler<T> = (em: EntityManager, resource: T) => Promise<void> | void;
 
-export type PreSync<TSelector extends Selector<PreSyncDocument<PreSyncResource>>> = {
+export type ResyncDeserializer<T extends ResyncResource> = (data: unknown) => ResyncDocument<T>;
+
+export type Resync<TResource extends ResyncResource, TDeserializer extends ResyncDeserializer<TResource>> = {
     basePath: string;
     searchParams?: URLSearchParams;
-    selector: TSelector;
+    deserializer: TDeserializer;
     entityClass: SyncableEntityClass;
-    create: PreSyncHandler<ReturnType<TSelector>["data"][number]>;
-    update: PreSyncHandler<ReturnType<TSelector>["data"][number]>;
+    upsert: ResyncHandler<TResource>;
 };
 
 export type UpstreamEntity = {
     routingKeyPrefix: string;
     events: MessageEvent<z.ZodTypeAny>[];
-    preSync?: PreSync<Selector<PreSyncDocument<PreSyncResource>>>;
+    resync?: Resync<ResyncResource, ResyncDeserializer<ResyncResource>>;
 };
 
 export type UpstreamService = {
@@ -78,9 +69,9 @@ type VersionReference = {
 export const createMessageEvent = <T extends z.ZodTypeAny>(
     event: MessageEvent<T>,
 ): MessageEvent<T> => event;
-export const createPreSync = <T extends Selector<PreSyncDocument<PreSyncResource>>>(
-    preSync: PreSync<T>,
-): PreSync<T> => preSync;
+export const createResync = <TResource extends ResyncResource, TDeserializer extends ResyncDeserializer<TResource>>(
+    preSync: Resync<TResource, TDeserializer>,
+): Resync<TResource, TDeserializer> => preSync;
 export const createUpstreamEntity = (entity: UpstreamEntity): UpstreamEntity => entity;
 export const createUpstreamService = (service: UpstreamService): UpstreamService => service;
 
@@ -121,7 +112,7 @@ export class SyncManager {
         process.on("SIGINT", handleShutdown);
         process.on("SIGTERM", handleShutdown);
 
-        await this.runPreSync();
+        await this.runResync();
         this.initialSyncMutex.release();
     }
 
@@ -183,7 +174,7 @@ export class SyncManager {
         );
     }
 
-    private async runPreSync(): Promise<void> {
+    private async runResync(): Promise<void> {
         for (const service of this.upstreamServices) {
             if (!service.disableWaitReady) {
                 await this.waitReady(`/${service.serviceName}/health`, service.serviceName);
@@ -191,41 +182,32 @@ export class SyncManager {
 
             for (const entity of service.entities) {
                 await this.config.orm.em.fork().transactional(async (em) => {
-                    await this.preSyncEntity(em, service, entity);
+                    await this.resyncEntity(em, service, entity);
                 });
 
                 this.config.logger.info(
-                    `Entity with routing key ${entity.routingKeyPrefix} pre-synced`,
+                    `Entity with routing key ${entity.routingKeyPrefix} resynced`,
                 );
             }
         }
     }
 
-    private async preSyncEntity(
+    private async resyncEntity(
         em: EntityManager,
         service: UpstreamService,
         entity: UpstreamEntity,
     ): Promise<void> {
-        if (!entity.preSync) {
+        if (!entity.resync) {
             return;
         }
 
-        const versions = new Map(
-            (
-                await em
-                    .createQueryBuilder(entity.preSync.entityClass)
-                    .select(["id", "upstreamVersion"])
-                    .execute<VersionReference[]>("all", false)
-            ).map(({ id, upstream_version }) => [id, upstream_version]),
-        );
-
         const baseUrl = new URL(
-            `/${service.serviceName}${entity.preSync.basePath}`,
+            `/${service.serviceName}${entity.resync.basePath}`,
             this.config.apiGatewayUrl,
         );
 
-        if (entity.preSync.searchParams) {
-            baseUrl.search = entity.preSync.searchParams.toString();
+        if (entity.resync.searchParams) {
+            baseUrl.search = entity.resync.searchParams.toString();
         }
 
         let url: URL | null = baseUrl;
@@ -238,23 +220,10 @@ export class SyncManager {
                 },
             });
             await handleJsonApiError(response);
-            const document = entity.preSync.selector(await response.json());
+            const document = entity.resync.deserializer(await response.json());
 
             for (const resource of document.data) {
-                const version = versions.get(resource.id);
-
-                if (version === undefined) {
-                    await entity.preSync.create(em, resource);
-                    continue;
-                }
-
-                versions.delete(resource.id);
-
-                if (version === resource.version) {
-                    continue;
-                }
-
-                await entity.preSync.update(em, resource);
+                await entity.resync.upsert(em, resource);
             }
 
             if (document.pageParams.next) {
@@ -265,12 +234,6 @@ export class SyncManager {
 
             url = null;
         } while (url !== null);
-
-        if (versions.size > 0) {
-            await em.nativeDelete(entity.preSync.entityClass, {
-                id: { $in: [...versions.keys()] },
-            });
-        }
     }
 
     private async waitReady(path: string, serviceName: string): Promise<void> {

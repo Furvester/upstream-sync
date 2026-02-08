@@ -32,28 +32,26 @@
     "check": "biome check . --apply"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.7.1",
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
-    "@mikro-orm/postgresql": "^6.3.13",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.12.7",
-    "jsonapi-zod-query": "^2.1.1",
-    "lefthook": "^1.6.10",
-    "logforth": "^1.2.2",
-    "rabbitmq-client": "^5.0.0",
-    "typescript": "^5.4.5",
-    "zod": "^3.23.4"
+    "@biomejs/biome": "2.3.14",
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
+    "@mikro-orm/postgresql": "^6.6.6",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/node": "^25.2.2",
+    "lefthook": "^2.1.0",
+    "logforth": "^1.3.0",
+    "rabbitmq-client": "^5.0.8",
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
   },
   "peerDependencies": {
     "@mikro-orm/postgresql": "^6.3.13",
-    "jsonapi-zod-query": "^2.1.1",
     "logforth": "^1.2.2",
     "rabbitmq-client": "^5.0.0",
     "zod": "^3.22.4"
   },
-  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1",
   "dependencies": {
+    "@jsonapi-serde/client": "^1.2.1",
     "async-mutex": "^0.5.0"
   }
 }
