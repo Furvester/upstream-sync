@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/Furvester/upstream-sync/compare/v1.1.1...v2.0.0) (2026-02-08)
+
+
+### Features
+
+* replace jsonapi-zod-query with @json-api-serde/client ([d3f2936](https://github.com/Furvester/upstream-sync/commit/d3f2936ffbf144a6d443476d8e9f24ec7eb8c56b))
+
+
+### BREAKING CHANGES
+
+* this requires zod v4
+
 ## [1.1.1](https://github.com/Furvester/upstream-sync/compare/v1.1.0...v1.1.1) (2025-10-23)
 
 
