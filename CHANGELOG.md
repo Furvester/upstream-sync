@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/Furvester/upstream-sync/compare/v2.0.0...v2.0.1) (2026-02-10)
+
+
+### Bug Fixes
+
+* update zod peer dependency minimum version ([19ce841](https://github.com/Furvester/upstream-sync/commit/19ce841e2154a76dcc72f7ecdef058dca6b3c720))
+
 # [2.0.0](https://github.com/Furvester/upstream-sync/compare/v1.1.1...v2.0.0) (2026-02-08)
 
 
