@@ -64,11 +64,6 @@ export type UpstreamService = {
     disableWaitReady?: boolean;
 };
 
-type VersionReference = {
-    id: string;
-    upstream_version: number;
-};
-
 export const createMessageEvent = <T extends z.ZodTypeAny>(
     event: MessageEvent<T>,
 ): MessageEvent<T> => event;
