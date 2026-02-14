@@ -2,8 +2,17 @@ import type { EntityManager, MikroORM } from "@mikro-orm/postgresql";
 import { Mutex } from "async-mutex";
 import type { Logger } from "logforth";
 import { Connection, type ConnectionOptions, type Consumer, type ConsumerProps, } from "rabbitmq-client";
-import type { z } from "zod";
-import { extractPageParams, handleJsonApiError, injectPageParams, TopLevelLinks } from "@jsonapi-serde/client";
+import { z } from "zod";
+import {
+    AttributesSchema,
+    type Deserializer,
+    extractPageParams,
+    handleJsonApiError,
+    injectPageParams,
+    LinksSchema,
+    MetaSchema,
+    Relationships,
+} from "@jsonapi-serde/client";
 
 export type SyncManagerConfig = {
     rabbitmq: ConnectionOptions;
@@ -12,16 +21,6 @@ export type SyncManagerConfig = {
     namespace: string;
     apiGatewayUrl: string;
     apiKey: string;
-};
-
-export type ResyncResource = {
-    id: string;
-    version: number;
-};
-
-export type ResyncDocument<T extends ResyncResource> = {
-    data: T[];
-    links?: TopLevelLinks;
 };
 
 export type MessageEventHandler<T = unknown> = (em: EntityManager, data: T) => Promise<void> | void;
@@ -34,19 +33,29 @@ export type MessageEvent<T extends z.ZodTypeAny> = {
 
 export type ResyncHandler<T> = (em: EntityManager, resource: T) => Promise<void> | void;
 
-export type ResyncDeserializer<T extends ResyncResource> = (data: unknown) => ResyncDocument<T>;
+export type ResyncDeserializer = Deserializer<"many", AttributesSchema | undefined, Relationships | undefined, LinksSchema | undefined, MetaSchema | undefined, MetaSchema | undefined>;
 
-export type Resync<TResource extends ResyncResource, TDeserializer extends ResyncDeserializer<TResource>> = {
+export type Resync<TResource, TDeserializer extends ResyncDeserializer> = {
     basePath: string;
     searchParams?: URLSearchParams;
     deserializer: TDeserializer;
     upsert: ResyncHandler<TResource>;
 };
 
+export type ResyncBaseConfig<TDeserializer extends ResyncDeserializer> = {
+    basePath: string;
+    searchParams?: URLSearchParams;
+    deserializer: TDeserializer;
+};
+
+export type ResyncBuilder<TDeserializer extends ResyncDeserializer> = {
+    build: (upsert: ResyncHandler<ReturnType<TDeserializer>["data"][number]>) => Resync<ReturnType<TDeserializer>["data"][number], TDeserializer>;
+};
+
 export type UpstreamEntity = {
     routingKeyPrefix: string;
     events: MessageEvent<z.ZodTypeAny>[];
-    resync?: Resync<ResyncResource, ResyncDeserializer<ResyncResource>>;
+    resync?: Resync<unknown, ResyncDeserializer>;
 };
 
 export type UpstreamService = {
@@ -63,9 +72,18 @@ type VersionReference = {
 export const createMessageEvent = <T extends z.ZodTypeAny>(
     event: MessageEvent<T>,
 ): MessageEvent<T> => event;
-export const createResync = <TResource extends ResyncResource, TDeserializer extends ResyncDeserializer<TResource>>(
-    preSync: Resync<TResource, TDeserializer>,
-): Resync<TResource, TDeserializer> => preSync;
+export const createResync = <TDeserializer extends ResyncDeserializer>(
+    config: ResyncBaseConfig<TDeserializer>,
+): ResyncBuilder<TDeserializer> => {
+    return {
+        build: (upsert) => ({
+            basePath: config.basePath,
+            searchParams: config.searchParams,
+            deserializer: config.deserializer,
+            upsert,
+        }),
+    };
+};
 export const createUpstreamEntity = (entity: UpstreamEntity): UpstreamEntity => entity;
 export const createUpstreamService = (service: UpstreamService): UpstreamService => service;
 
