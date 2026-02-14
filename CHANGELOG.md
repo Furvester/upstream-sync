@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/Furvester/upstream-sync/compare/v2.1.3...v2.1.4) (2026-02-14)
+
+
+### Bug Fixes
+
+* **resync:** update resync builder pattern to properly infer resource ([13051c2](https://github.com/Furvester/upstream-sync/commit/13051c266131d35f0a0c40d1b30920763d5ec416))
+
 ## [2.1.3](https://github.com/Furvester/upstream-sync/compare/v2.1.2...v2.1.3) (2026-02-14)
 
 
