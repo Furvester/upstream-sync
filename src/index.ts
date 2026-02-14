@@ -1,4 +1,4 @@
-import type { EntityClass, EntityManager, MikroORM } from "@mikro-orm/postgresql";
+import type { EntityManager, MikroORM } from "@mikro-orm/postgresql";
 import { Mutex } from "async-mutex";
 import type { Logger } from "logforth";
 import { Connection, type ConnectionOptions, type Consumer, type ConsumerProps, } from "rabbitmq-client";
@@ -13,11 +13,6 @@ export type SyncManagerConfig = {
     apiGatewayUrl: string;
     apiKey: string;
 };
-
-export type SyncableEntityClass = EntityClass<{
-    id: string;
-    upstreamVersion: number;
-}>;
 
 export type ResyncResource = {
     id: string;
@@ -45,7 +40,6 @@ export type Resync<TResource extends ResyncResource, TDeserializer extends Resyn
     basePath: string;
     searchParams?: URLSearchParams;
     deserializer: TDeserializer;
-    entityClass: SyncableEntityClass;
     upsert: ResyncHandler<TResource>;
 };
 
