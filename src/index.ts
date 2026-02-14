@@ -3,7 +3,7 @@ import { Mutex } from "async-mutex";
 import type { Logger } from "logforth";
 import { Connection, type ConnectionOptions, type Consumer, type ConsumerProps, } from "rabbitmq-client";
 import type { z } from "zod";
-import { handleJsonApiError, injectPageParams, PaginationPageParams } from "@jsonapi-serde/client";
+import { extractPageParams, handleJsonApiError, injectPageParams, TopLevelLinks } from "@jsonapi-serde/client";
 
 export type SyncManagerConfig = {
     rabbitmq: ConnectionOptions;
@@ -21,7 +21,7 @@ export type ResyncResource = {
 
 export type ResyncDocument<T extends ResyncResource> = {
     data: T[];
-    pageParams: PaginationPageParams<string>;
+    links?: TopLevelLinks;
 };
 
 export type MessageEventHandler<T = unknown> = (em: EntityManager, data: T) => Promise<void> | void;
@@ -227,10 +227,14 @@ export class SyncManager {
                 await entity.resync.upsert(em, resource);
             }
 
-            if (document.pageParams.next) {
-                url = new URL(baseUrl);
-                injectPageParams(url, document.pageParams.next);
-                continue;
+            if (document.links) {
+                const pageParams = extractPageParams(document.links);
+
+                if (pageParams.next) {
+                    url = new URL(baseUrl);
+                    injectPageParams(url, pageParams.next);
+                    continue;
+                }
             }
 
             url = null;
