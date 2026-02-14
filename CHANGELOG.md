@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/Furvester/upstream-sync/compare/v2.1.2...v2.1.3) (2026-02-14)
+
+
+### Bug Fixes
+
+* extract page params from optional page if available ([f3f72d4](https://github.com/Furvester/upstream-sync/commit/f3f72d418ee90f6304a25c3d4eaab020bae3bf78))
+
 ## [2.1.2](https://github.com/Furvester/upstream-sync/compare/v2.1.1...v2.1.2) (2026-02-14)
 
 
