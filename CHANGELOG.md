@@ -1,3 +1,10 @@
+## [2.1.6](https://github.com/Furvester/upstream-sync/compare/v2.1.5...v2.1.6) (2026-02-14)
+
+
+### Bug Fixes
+
+* **resync:** allow literally any as resync resource ([a2a4af5](https://github.com/Furvester/upstream-sync/commit/a2a4af510dfd17851e97ab86e777b0512b937d83))
+
 ## [2.1.5](https://github.com/Furvester/upstream-sync/compare/v2.1.4...v2.1.5) (2026-02-14)
 
 
