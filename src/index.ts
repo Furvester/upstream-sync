@@ -55,7 +55,7 @@ export type ResyncBuilder<TDeserializer extends ResyncDeserializer> = {
 export type UpstreamEntity = {
     routingKeyPrefix: string;
     events: MessageEvent<z.ZodTypeAny>[];
-    resync?: Resync<unknown, ResyncDeserializer>;
+    resync?: Resync<ReturnType<ResyncDeserializer>["data"][number], ResyncDeserializer>;
 };
 
 export type UpstreamService = {
