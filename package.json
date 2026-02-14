@@ -1,6 +1,6 @@
 {
   "name": "@furvester/upstream-sync",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Sync from upstream via RabbitMQ",
   "type": "module",
   "author": "Ben Scholzen 'DASPRiD'",

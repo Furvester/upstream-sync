@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/Furvester/upstream-sync/compare/v2.1.0...v2.1.1) (2026-02-14)
+
+
+### Bug Fixes
+
+* remove legacy entityClass ([4cea228](https://github.com/Furvester/upstream-sync/commit/4cea22872302632a46a4464ade4a7c3431932412))
+
 # [2.1.0](https://github.com/Furvester/upstream-sync/compare/v2.0.1...v2.1.0) (2026-02-14)
 
 
