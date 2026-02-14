@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/Furvester/upstream-sync/compare/v2.1.1...v2.1.2) (2026-02-14)
+
+
+### Bug Fixes
+
+* move @jsonapi-serde/client to peer dependency ([2e74309](https://github.com/Furvester/upstream-sync/commit/2e74309b86928ecd89d1d41ba6aa8ad6ce02b485))
+
 ## [2.1.1](https://github.com/Furvester/upstream-sync/compare/v2.1.0...v2.1.1) (2026-02-14)
 
 
