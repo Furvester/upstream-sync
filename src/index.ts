@@ -32,7 +32,7 @@ export type ResyncDocument<T extends ResyncResource> = {
 export type MessageEventHandler<T = unknown> = (em: EntityManager, data: T) => Promise<void> | void;
 
 export type MessageEvent<T extends z.ZodTypeAny> = {
-    key: string;
+    key: string | string[];
     schema: T;
     handler: MessageEventHandler<ReturnType<T["parse"]>>;
 };
@@ -136,7 +136,14 @@ export class SyncManager {
                 });
 
                 for (const event of entity.events) {
-                    eventHandlers.set(`${entity.routingKeyPrefix}.${event.key}`, event);
+                    if (typeof event.key === "string") {
+                        eventHandlers.set(`${entity.routingKeyPrefix}.${event.key}`, event);
+                        continue;
+                    }
+
+                    for (const key of event.key) {
+                        eventHandlers.set(`${entity.routingKeyPrefix}.${key}`, event);
+                    }
                 }
             }
         }
